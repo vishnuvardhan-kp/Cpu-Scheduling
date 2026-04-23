@@ -1,0 +1,13 @@
+/* App.css is mostly handled by Tailwind and index.css */
+@utility glow-button {
+  @apply relative overflow-hidden transition-all duration-300;
+  
+  &::after {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-300 bg-white/20 blur-xl;
+  }
+
+  &:hover::after {
+    @apply opacity-100;
+  }
+}
