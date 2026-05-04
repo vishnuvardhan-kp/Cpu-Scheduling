@@ -177,7 +177,11 @@ export const calculateRoundRobin = (processes, quantum) => {
   const completed = [];
   
   // Initial fill: find processes that arrive at time 0
-  const sortedByArrival = [...remaining].sort((a, b) => a.arrivalTime - b.arrivalTime);
+  // Ensure stable sort: by arrival time first, then by original ID
+  const sortedByArrival = [...remaining].sort((a, b) => {
+    if (a.arrivalTime !== b.arrivalTime) return a.arrivalTime - b.arrivalTime;
+    return a.id - b.id;
+  });
   
   const addToQueue = (time, excludingProcessId) => {
     sortedByArrival.forEach(p => {
@@ -217,9 +221,11 @@ export const calculateRoundRobin = (processes, quantum) => {
       color: current.color
     });
 
-    // New processes arriving during execution should be added to queue BEFORE returning the current process
+    // CRITICAL: Strict Round Robin FIFO logic
+    // 1. Add all processes that arrived during the current execution to the queue first
     addToQueue(currentTime, current.id);
-
+    
+    // 2. Then, if the current process isn't finished, add it back to the end of the queue
     if (current.remainingTime > 0) {
       queue.push(current);
     } else {
